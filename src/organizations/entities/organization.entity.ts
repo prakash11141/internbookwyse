@@ -13,6 +13,7 @@ export class Organization extends Model<Organization> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name: string;
 
