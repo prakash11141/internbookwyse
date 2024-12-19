@@ -7,7 +7,6 @@ import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Organization } from './entities/organization.entity';
-import { NotFoundError } from 'rxjs';
 import { Op, Sequelize } from 'sequelize';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class OrganizationsService {
   ) {}
   //register a organization
   async create(createOrganizationDto: CreateOrganizationDto) {
-    const { name, status, subscriptionPlan } = createOrganizationDto;
+    const { name, isActive, subscriptionPlan } = createOrganizationDto;
 
     //organization already exists
     const existingOrg = await this.organizationModel.findOne({
@@ -32,26 +31,19 @@ export class OrganizationsService {
     // Create the new organization
     const newOrganization = await this.organizationModel.create({
       name,
-      status,
+      isActive,
       subscriptionPlan,
     });
 
-    return {
-      message: 'Organization registered successfully',
-      organization: newOrganization,
-    };
+    return newOrganization;
   }
   //find all org
   async findAll() {
     return await this.organizationModel.findAll();
   }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} organization`;
-  // }
   //update org
   async update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
-    const { name, status, subscriptionPlan } = updateOrganizationDto;
+    const { name, isActive, subscriptionPlan } = updateOrganizationDto;
     const organization = await this.organizationModel.findByPk(id);
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -69,7 +61,7 @@ export class OrganizationsService {
     }
     await organization.update({
       name: name ?? organization.name,
-      status: status ?? organization.status,
+      isActive: isActive ?? organization.isActive,
       subscriptionPlan: subscriptionPlan ?? organization.subscriptionPlan,
     });
     return {
@@ -97,8 +89,8 @@ export class OrganizationsService {
       throw new NotFoundException(`Organization with ID ${id} not found`);
     }
 
-    // Update the organization's status to 'Inactive'
-    organization.status = 'Inactive';
+    // Update the organization's isActive to deactivate it
+    organization.isActive = false;
     await organization.save();
 
     return {
@@ -106,21 +98,27 @@ export class OrganizationsService {
       organization,
     };
   }
+  //find by id
+  async findById(id: number) {
+    const organization = await this.organizationModel.findByPk(id);
+    // If the organization is not found, throw an exception
+    if (!organization) {
+      throw new NotFoundException(`Organization with ID ${id} not found`);
+    }
+
+    return organization;
+  }
   //by filter
-  async getOrganizations(filters: any) {
+  async getOrganizationsByFilters(filters: any) {
     const whereCondition: any = {};
 
     if (filters.search) {
       whereCondition.name = { [Op.iLike]: `%${filters.search}%` };
     }
-    if (filters.status) {
-      whereCondition.status = Sequelize.where(
-        Sequelize.cast(Sequelize.col('status'), 'text'),
-        {
-          [Op.iLike]: filters.status,
-        },
-      );
-    }
+    if (filters.isActive !== undefined) {
+      // Ensure the filter is treated as a boolean
+      whereCondition.isActive = filters.isActive === true;
+    } 
     if (filters.subscriptionPlan) {
       whereCondition.subscriptionPlan = Sequelize.where(
         Sequelize.cast(Sequelize.col('subscriptionPlan'), 'text'),

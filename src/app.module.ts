@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles/roles.guard';
 
+import { OrgRolesModule } from './org-roles/org-roles.module';
+
 @Module({
   imports: [
     SequelizeModule.forRoot({
@@ -20,6 +22,8 @@ import { RolesGuard } from './auth/guards/roles/roles.guard';
     OrganizationsModule,
     UsersModule,
     AuthModule,
+
+    OrgRolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

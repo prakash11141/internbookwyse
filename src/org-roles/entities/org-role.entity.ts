@@ -9,7 +9,7 @@ import {
 import { Organization } from 'src/organizations/entities/organization.entity';
 
 @Table({ tableName: 'Users' })
-export class User extends Model<User> {
+export class OrgRole extends Model<OrgRole> {
   @Column({
     type: DataType.INTEGER,
     autoIncrement: true,
@@ -37,17 +37,16 @@ export class User extends Model<User> {
   password: string;
 
   @Column({
-    type: DataType.BOOLEAN,
-    allowNull: true,
-    defaultValue: true, // Default value for IsActive
+    type: DataType.ENUM('OrgUser'),
+    allowNull: false,
+    defaultValue: 'OrgUser',
   })
-  isActive: boolean;
+  role: 'OrgUser';
 
   @Column({
-    type: DataType.ENUM('SuperAdmin', 'OrgAdmin', 'OrgUser', 'Customer'),
-    allowNull: false,
+    type: DataType.ENUM('Active', 'Inactive'),
   })
-  role: 'SuperAdmin' | 'OrgAdmin' | 'OrgUser' | 'Customer';
+  status: 'Active' | 'Inactive';
 
   @ForeignKey(() => Organization)
   @Column({

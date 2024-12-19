@@ -18,10 +18,11 @@ export class Organization extends Model<Organization> {
   name: string;
 
   @Column({
-    type: DataType.ENUM('Active', 'Inactive'),
-    allowNull: false,
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    defaultValue: true,
   })
-  status: 'Active' | 'Inactive';
+  isActive: boolean;
 
   @Column({
     type: DataType.STRING,

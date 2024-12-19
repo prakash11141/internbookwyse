@@ -28,6 +28,11 @@ export class RolesGuard implements CanActivate {
     }
 
     const hasRequiredRole = requiredRoles.some((role) => user.role === role);
+    if (!hasRequiredRole) {
+      throw new ForbiddenException(
+        `Access denied: User with role '${user.role}' is not authorized to perform this action. Required roles: ${requiredRoles.join(', ')}.`,
+      );
+    }
     return hasRequiredRole;
   }
 }

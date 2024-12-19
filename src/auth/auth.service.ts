@@ -17,18 +17,34 @@ export class AuthService {
     const { email, password } = loginDto;
 
     // Find the user by email
-    const user = await this.userModel.findOne({ where: { email } });
+    const user = await this.userModel.findOne({
+      where: { email },
+      attributes: ['id', 'email', 'password', 'role', 'organizationId'], // Explicitly include 'organizationId'
+    });
+
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    // Validate password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    // Generate JWT and data in payload
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    // Debug: Log the user and attributes
+    // console.log('Authenticated User:', user);
+
+    // Generate JWT with required payload
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    };
+
+    console.log('JWT Payload:', payload);
+
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken };

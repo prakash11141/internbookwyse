@@ -1,13 +1,18 @@
-import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, Min } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString()
   name: string;
 
-  @IsEnum(['Active', 'Inactive'], { message: 'must be Active or Inactive' })
-  status: 'Active' | 'Inactive';
+  @IsBoolean()
+  isActive: boolean;
 
   @IsString()
   @IsOptional()
   subscriptionPlan?: string;
+
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  userCount: number;
 }
